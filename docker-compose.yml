@@ -1,19 +1,30 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - n8n
+    restart: unless-stopped
+
   n8n:
     image: docker.n8n.io/n8nio/n8n
-    ports:
-      - "5678:5678"
+    expose:
+      - "5678"
     environment:
       - GENERIC_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
       - N8N_PROTOCOL=https
       - N8N_HOST=35.219.118.133
-      - N8N_PORT=5678
-      - N8N_SSL_KEY=/certs/privkey.pem
-      - N8N_SSL_CERT=/certs/fullchain.pem
+      - N8N_PORT=443
+      - WEBHOOK_URL=https://35.219.118.133
     volumes:
-      - ./certs:/certs:ro
       - n8n_data:/home/node/.n8n
+    restart: unless-stopped
 
 volumes:
   n8n_data:

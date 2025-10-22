@@ -10,7 +10,8 @@
    ```
 
 2. **Open required ports** on your firewall:
-   - Port 5678
+   - Port 80 (HTTP - for redirect to HTTPS)
+   - Port 443 (HTTPS)
 
 ## Deployment Steps
 
@@ -30,9 +31,13 @@ chmod 644 certs/*.pem
 
 **Note:** For production environments, consider using Let's Encrypt certificates instead of self-signed certificates.
 
-### 2. Start n8n
+### 2. Start n8n with Nginx
 
-The `n8n_data` volume will be automatically created by Docker Compose to persist your workflows and data.
+The setup includes:
+- **Nginx** as a reverse proxy handling HTTPS
+- **n8n** running behind Nginx
+- Automatic HTTP to HTTPS redirect
+- The `n8n_data` volume for persisting workflows and data
 
 ```bash
 docker compose up -d
@@ -40,7 +45,7 @@ docker compose up -d
 
 ### 3. Verify the Deployment
 
-Check if the container is running:
+Check if containers are running:
 
 ```bash
 docker compose ps
@@ -49,14 +54,26 @@ docker compose ps
 View logs:
 
 ```bash
+# View all logs
+docker compose logs -f
+
+# View n8n logs only
 docker compose logs -f n8n
+
+# View nginx logs only
+docker compose logs -f nginx
 ```
 
 ### 4. Access n8n
 
 Open your browser and navigate to:
 ```
-https://35.219.118.133:5678
+https://35.219.118.133
+```
+
+Or use HTTP (will automatically redirect to HTTPS):
+```
+http://35.219.118.133
 ```
 
 **Note:** If using self-signed certificates, your browser will show a security warning. Click "Advanced" and proceed to continue.
@@ -79,9 +96,14 @@ docker compose pull
 docker compose up -d
 ```
 
-### Restart n8n
+### Restart services
 ```bash
+# Restart all services
 docker compose restart
+
+# Restart specific service
+docker compose restart n8n
+docker compose restart nginx
 ```
 
 ### View logs
@@ -93,20 +115,36 @@ docker compose logs -f n8n
 
 The n8n instance is configured with:
 - **Timezone:** Asia/Jakarta
-- **Protocol:** HTTPS
+- **Protocol:** HTTPS (handled by Nginx reverse proxy)
 - **Host:** 35.219.118.133
-- **Port:** 5678
+- **Port:** 443 (external), 5678 (internal)
 - **Data persistence:** Docker volume `n8n_data`
+- **Reverse Proxy:** Nginx with SSL termination
+
+## Architecture
+
+```
+Browser → Nginx (Port 80/443) → n8n (Port 5678)
+          [SSL/TLS handled here]
+```
 
 ## Troubleshooting
 
-### Container won't start
+### Containers won't start
 - Ensure SSL certificates exist in `./certs/` directory
-- Check if port 5678 is available: `sudo netstat -tuln | grep 5678`
-- View logs: `docker compose logs n8n`
+- Check if ports 80 and 443 are available: `sudo netstat -tuln | grep -E '80|443'`
+- View logs: `docker compose logs`
 
 ### Cannot access n8n
-- Verify firewall allows port 5678
-- Check container is running: `docker compose ps`
-- Ensure you're using HTTPS: `https://35.219.118.133:5678`
+- Verify firewall allows ports 80 and 443
+- Check containers are running: `docker compose ps`
+- Ensure you're using HTTPS: `https://35.219.118.133`
 - Accept the browser security warning if using self-signed certificates
+
+### Nginx errors
+- Check nginx configuration: `docker compose exec nginx nginx -t`
+- View nginx logs: `docker compose logs nginx`
+
+### n8n connection issues
+- Verify n8n is accessible from nginx: `docker compose exec nginx wget -O- http://n8n:5678`
+- Check n8n logs: `docker compose logs n8n`
