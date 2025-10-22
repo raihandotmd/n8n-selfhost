@@ -7,7 +7,6 @@ services:
       - GENERIC_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
       - N8N_HOST=35.219.118.133
-      - N8N_PORT=443
       - WEBHOOK_URL=https://35.219.118.133
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
