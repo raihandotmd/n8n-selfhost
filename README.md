@@ -19,12 +19,13 @@
 Create a `certs` directory and generate self-signed certificates:
 
 ```bash
-mkdir certs
+mkdir -p certs
 openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
   -keyout certs/privkey.pem \
   -out certs/fullchain.pem \
   -subj "/CN=35.219.118.133"
+chmod 644 certs/*.pem
 ```
 
 **Note:** For production environments, consider using Let's Encrypt certificates instead of self-signed certificates.

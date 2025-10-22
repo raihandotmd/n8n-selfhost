@@ -9,11 +9,10 @@ services:
       - N8N_PROTOCOL=https
       - N8N_HOST=35.219.118.133
       - N8N_PORT=5678
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - N8N_SSL_KEY=/certs/privkey.pem
+      - N8N_SSL_CERT=/certs/fullchain.pem
     volumes:
-      - ./certs/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      - ./certs/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - ./certs:/certs:ro
       - n8n_data:/home/node/.n8n
 
 volumes:
