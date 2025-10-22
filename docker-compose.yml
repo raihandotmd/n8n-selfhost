@@ -6,7 +6,6 @@ services:
     environment:
       - GENERIC_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
-      - N8N_PROTOCOL=https
       - N8N_HOST=35.219.118.133
       - N8N_PORT=443
       - WEBHOOK_URL=https://35.219.118.133
